@@ -22,7 +22,24 @@ h1, h2, h3, h4, h5, h6 {
   line-height: 1.3em; }
 
 h2 {
-  font-size: 0.9rem; }
+  font-size: 0.9rem;
+  font-weight: bold; }
+
+ul {
+  list-style: none;
+  margin: 1em 0;
+  padding: 0; }
+  ul li {
+    font-size: 0.9rem; }
+    ul li a {
+      display: block;
+      padding: 1em;
+      color: #e5e5e5;
+      text-decoration: none;
+      background: transparent; }
+      ul li a:hover, ul li a:focus {
+        color: white;
+        background: #2a4358; }
 
 .wrapper {
   width: 100%;
