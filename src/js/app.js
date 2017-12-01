@@ -48,9 +48,6 @@ let AppViewModel = function () {
     self.shouldShowNavigation = ko.observable(true);
 
     // Map data
-    self.mapCenterLat = ko.observable('37.6916105');
-    self.mapCenterLng = ko.observable('-122.4062711');
-    self.mapZoom = ko.observable(8);
     self.locations = ko.observableArray(locations);
 
     /**
@@ -61,13 +58,10 @@ let AppViewModel = function () {
     };
 
     /**
-     * @description define map property for San Fransisco BART area
+     * @description define the map data value for BART
+     * @type {{zoom: number, lat: number, lng: number}}
      */
-    self.sfMap = ko.observable({
-        zoom: 12,
-        lat: 37.6916105,
-        lng: -122.4062711
-    });
+    self.bartMap = {zoom: 11, lat: 37.8271784, lng: -122.2913078};
 };
 
 /**
@@ -77,13 +71,11 @@ ko.bindingHandlers.map = {
     init: function (element, valueAccessor, allBindings) {
         // get the latest data for the map
         let value = valueAccessor();
-        // check if there is no supplied model
         let valueUnwrapped = ko.unwrap(value);
 
-        // define the variables for the map and its default value
         let zoom = allBindings.get('mapZoom') || 11;
-        let lat = allBindings.get('mapCenterLat') || 37.6916105;
-        let lng = allBindings.get('mapCenterLng') || -122.4062711;
+        let lat = allBindings.get('mapCenterLat') || 37.8271784;
+        let lng = allBindings.get('mapCenterLng') || -122.2913078;
 
         let options = {
             zoom: zoom,
@@ -91,16 +83,15 @@ ko.bindingHandlers.map = {
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
 
-        // If no supplied model property is observable, loda the predefined map
-        if (valueUnwrapped === true) {
-            let map = new google.maps.Map(element, {
-                zoom: 8,
-                center: {lat: 37.6916105, lng: -122.4062711},
-                mapTypeId: google.maps.MapTypeId.ROADMAP
-            })
-
-        // If there is model property that is observable, load map according to the latest data
+        // If map data is undefined, load the default value
+        if (valueUnwrapped === undefined) {
+            let map = new google.maps.Map(element, options);
         } else {
+            // If map value is defined, load the latest data value in model
+            options = {
+                zoom: value.zoom,
+                center: new google.maps.LatLng(value.lat, value.lng),
+            };
             let map = new google.maps.Map(element, options);
         }
     }
