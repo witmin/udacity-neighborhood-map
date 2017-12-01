@@ -26,3 +26,4 @@ npm run watch-css
 * jQuery 3.2.1
 * normalize.scss v7.0.0 https://github.com/JohnAlbin/normalize-scss
 * knockout.js
+* Icon images are from feather icons https://feather.netlify.com/

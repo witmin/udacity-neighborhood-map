@@ -11,9 +11,31 @@
 <body>
 
 <div class="wrapper">
+    <!-- Navigation -->
+    <nav id="nav">
+        <h2>Station locations</h2>
+        <!-- filter-->
+        <form id="filter-form">
+            <input type="text" id="location-keyword" placeholder="Station location">
+            <button id="filter-button">Filter</button>
+        </form>
+        <!-- locations list -->
+        <ul>
+            <li></li>
+        </ul>
+    </nav>
+
+    <main id="main">
+        <header id="header">
+            <!-- menu icon image is from https://feather.netlify.com/ -->
+            <a href="#" title="toggle menu display"><img src="images/menu.svg" alt="Show or hide menu"></a>
+            <h1 class="title">BART Locations San Francisco</h1>
+        </header>
+        <!-- Map-->
+        <div id="map"></div>
+    </main>
 
 </div>
-
 <!-- Javascript for the application -->
 <script src="src/js/app.js"></script>
 </body>
