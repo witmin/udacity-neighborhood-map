@@ -5,6 +5,8 @@
 let AppViewModel = function () {
     let self = this;
 
+    self.shouldShowNavigation = ko.observable(true);
+
     self.locations = ko.observableArray([
         {
             title: "Coliseum BART Station",
