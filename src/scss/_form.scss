@@ -1,0 +1,43 @@
+input[type="text"] {
+  font-size: 0.9rem;
+  padding: 0.6em 0.4em;
+  color: $black;
+  background: $white;
+  border: 1px solid $blue;
+  border-radius: 4px;
+  height: 36px;
+  &:focus{
+    outline: 1px solid lighten($blue, 5%);
+  }
+}
+
+button {
+  height: 36px;
+  padding: 0.5em 0.4em;
+  font-size: 0.9rem;
+  color: $white;
+  background: $blue;
+  border: 1px solid $blue;
+}
+
+#filter-form {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center;
+
+  input[type="text"] {
+    display: block;
+    width: 80%;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  #filter-button {
+    display: block;
+    width: 20%;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}

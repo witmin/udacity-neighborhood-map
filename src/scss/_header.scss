@@ -1,0 +1,27 @@
+#header {
+  width: 100%;
+  height: $header-height;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  color: $white;
+  background: $navy;
+
+  #toggle-menu-button {
+    display: block;
+    text-align: center;
+    width: $header-height;
+    height: $header-height;
+    padding: 0.8em 0 0 0;
+    &:hover {
+      background: rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  h1 {
+    text-align: center;
+    margin: 0 auto;
+    text-indent: -$header-height;
+  }
+}

@@ -16,18 +16,107 @@ a {
   a:hover, a:focus {
     color: #0e7daa; }
 
+h1, h2, h3, h4, h5, h6 {
+  font-weight: normal;
+  font-size: 1rem;
+  line-height: 1.3em; }
+
+h2 {
+  font-size: 0.9rem; }
+
 .wrapper {
   width: 100%;
   height: 100%;
   min-height: 100%;
   overflow: hidden;
-  background: red;
+  background: white;
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap; }
+  flex-wrap: nowrap;
+  justify-content: stretch;
+  align-items: flex-start; }
 
 #nav {
-  width: 30vw;
-  min-width: 240px; }
+  width: 32vw;
+  min-width: 240px;
+  max-width: 280px;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  color: white;
+  background: #3b5d7a;
+  padding: 0 1em;
+  border-right: 1px solid #335069; }
+  #nav.hide {
+    display: none; }
+  #nav.show {
+    display: block; }
+
+#main {
+  width: 100%; }
+
+@media screen and (max-width: 768px) {
+  #nav {
+    display: none; }
+    #nav.show {
+      display: block; } }
+#header {
+  width: 100%;
+  height: 44px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  color: white;
+  background: #3b5d7a; }
+  #header #toggle-menu-button {
+    display: block;
+    text-align: center;
+    width: 44px;
+    height: 44px;
+    padding: 0.8em 0 0 0; }
+    #header #toggle-menu-button:hover {
+      background: rgba(0, 0, 0, 0.5); }
+  #header h1 {
+    text-align: center;
+    margin: 0 auto;
+    text-indent: -44px; }
+
+input[type="text"] {
+  font-size: 0.9rem;
+  padding: 0.6em 0.4em;
+  color: black;
+  background: white;
+  border: 1px solid #12A0D9;
+  border-radius: 4px;
+  height: 36px; }
+  input[type="text"]:focus {
+    outline: 1px solid #19afec; }
+
+button {
+  height: 36px;
+  padding: 0.5em 0.4em;
+  font-size: 0.9rem;
+  color: white;
+  background: #12A0D9;
+  border: 1px solid #12A0D9; }
+
+#filter-form {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: center; }
+  #filter-form input[type="text"] {
+    display: block;
+    width: 80%;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0; }
+  #filter-form #filter-button {
+    display: block;
+    width: 20%;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0; }
 
 /*# sourceMappingURL=app.css.map */

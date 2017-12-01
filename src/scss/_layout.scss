@@ -3,13 +3,43 @@
   height: 100%;
   min-height: 100%;
   overflow: hidden;
-  background: red;
+  background: $white;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
+  justify-content: stretch;
+  align-items: flex-start;
 }
 
 #nav {
-  width: 30vw;
+  width: 32vw;
   min-width: 240px;
+  max-width: 280px;
+  height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  color: $white;
+  background: $navy;
+  padding: 0 1em;
+  border-right: 1px solid darken($navy, 5%);
+  &.hide {
+    display: none;
+  }
+  &.show {
+    display: block;
+  }
+}
+
+#main {
+  width: 100%;
+}
+
+// tablet size
+@media screen and (max-width: 768px) {
+  #nav {
+    display: none;
+    &.show {
+      display: block;
+    }
+  }
 }
