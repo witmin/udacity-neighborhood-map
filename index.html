@@ -20,15 +20,16 @@
             <button id="filter-button">Filter</button>
         </form>
         <!-- locations list -->
-        <ul>
-            <li></li>
+        <ul data-bind="foreach: locations">
+            <li><a href="#" data-bind="text:title"></a></li>
         </ul>
     </nav>
 
     <main id="main">
         <header id="header">
             <!-- menu icon image is from https://feather.netlify.com/ -->
-            <a href="#" id="toggle-menu-button" title="toggle menu display"><img src="images/menu.svg" alt="Show or hide menu"></a>
+            <a href="#" id="toggle-menu-button" title="toggle menu display"><img src="images/menu.svg"
+                                                                                 alt="Show or hide menu"></a>
             <h1 class="title">BART Locations San Francisco</h1>
         </header>
         <!-- Map-->
@@ -39,5 +40,7 @@
 <!-- Javascript for the application -->
 <script src="lib/knockout.debug.js"></script>
 <script src="src/js/app.js"></script>
+<script src="http://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyCVBYSInGUKraOMZn03oRILz2Iq3myYYg8"
+        async defer></script>
 </body>
 </html>
