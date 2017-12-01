@@ -1,0 +1,31 @@
+{
+  "name": "neighborhood-map",
+  "version": "1.0.0",
+  "description": "build a responsive neiborhood map in knockout.js and google map",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/witmin/udacity-neighborhood-map.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-css": "node-sass --include-path scss src/scss/app.scss  dist/css/app.css",
+    "watch-css": "nodemon -e scss -x \"npm run build-css\"",
+    "babel": "babel src/js/app.js --out-file dist/js/app.js"
+  },
+  "keywords": [
+    "map"
+  ],
+  "author": "Millie Lin Xinmin",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/witmin/udacity-neighborhood-map/issues"
+  },
+  "homepage": "https://github.com/witmin/udacity-neighborhood-map#readme",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "node-sass": "^4.7.2"
+  }
+}
