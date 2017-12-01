@@ -65,19 +65,12 @@ ul {
   background: #3b5d7a;
   padding: 0 1em;
   border-right: 1px solid #335069; }
-  #nav.hide {
-    display: none; }
-  #nav.show {
-    display: block; }
 
 #main {
-  width: 100%; }
+  width: 100%;
+  height: 100vh;
+  overflow: hidden; }
 
-@media screen and (max-width: 768px) {
-  #nav {
-    display: none; }
-    #nav.show {
-      display: block; } }
 #header {
   width: 100%;
   height: 44px;
@@ -100,6 +93,9 @@ ul {
     margin: 0 auto;
     text-indent: -44px; }
 
+@media screen and (max-width: 425px) {
+  #header h1 {
+    display: none; } }
 input[type="text"] {
   font-size: 0.9rem;
   padding: 0.6em 0.4em;
@@ -136,5 +132,11 @@ button {
     width: 20%;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0; }
+
+@media screen and (max-width: 425px) {
+  #filter-form input[type="text"] {
+    width: 75%; }
+  #filter-form #filter-button {
+    width: 25%; } }
 
 /*# sourceMappingURL=app.css.map */
