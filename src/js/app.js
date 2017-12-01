@@ -45,6 +45,10 @@ let AppViewModel = function () {
         }
     ]);
 
+    // Toggle navigation list display
+    self.toggleNavigation = function () {
+        self.shouldShowNavigation(!self.shouldShowNavigation());
+    }
 
 };
 
