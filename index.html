@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neighborhood Map by Millie Lin Xinmin</title>
     <link rel="stylesheet" href="dist/css/app.css">
-
     <script src="lib/jquery-3.2.1.min.js"></script>
 </head>
 <body>
@@ -28,19 +27,22 @@
     <main id="main">
         <header id="header">
             <!-- menu icon image is from https://feather.netlify.com/ -->
-            <a href="#" id="toggle-menu-button" title="toggle menu display" data-bind="click: toggleNavigation"><img src="images/menu.svg"
-                                                                                 alt="Show or hide menu"></a>
+            <a href="#" id="toggle-menu-button" title="toggle menu display" data-bind="click: toggleNavigation"><img
+                    src="images/menu.svg"
+                    alt="Show or hide menu"></a>
             <h1 class="title">BART Locations San Francisco</h1>
         </header>
         <!-- Map-->
-        <div id="map"></div>
+        <div id="map" data-bind="map: sfMap"></div>
     </main>
 
 </div>
 <!-- Javascript for the application -->
-<script src="lib/knockout.debug.js"></script>
+<script src="lib/knockout.js"></script>
 <script src="src/js/app.js"></script>
-<script src="http://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyCVBYSInGUKraOMZn03oRILz2Iq3myYYg8"
-        async defer></script>
+
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCVBYSInGUKraOMZn03oRILz2Iq3myYYg8">
+</script>
 </body>
 </html>
