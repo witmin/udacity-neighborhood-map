@@ -1,0 +1,20 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #fff;
+  font-family: $font-family;
+  font-size: 62.5%;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+
+a {
+  color: $link-color;
+  &:hover, &:focus {
+    color: darken($link-color, 10%);
+  }
+}

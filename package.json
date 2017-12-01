@@ -10,7 +10,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build-css": "node-sass --include-path scss src/scss/app.scss  dist/css/app.css",
-    "watch-css": "nodemon -e scss -x \"npm run build-css\"",
+    "watch-css": "sass --watch src/scss/app.scss:dist/css/app.css",
     "babel": "babel src/js/app.js --out-file dist/js/app.js"
   },
   "keywords": [
