@@ -161,14 +161,15 @@ let AppViewModel = function () {
     self.keyword = ko.observable("");
 
     self.filterPlaces = function () {
-        let filterResults = [];
         // Reset the list if keyword is empty
         if (self.keyword() === "") {
+            self.places.removeAll();
             initialPlaces.forEach(function (place) {
                 self.places.push(new Place(place));
             });
             // compare string and update the list
         } else {
+            let filterResults = [];
             for (let i = 0, len = self.places().length; i < len; ++i) {
                 let name = self.places()[i].title().toString().toLowerCase();
                 let keyword = self.keyword().toString().toLowerCase();
