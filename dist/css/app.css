@@ -41,6 +41,9 @@ ul {
       ul li a:hover, ul li a:focus {
         color: white;
         background: #2a4358; }
+      ul li a.active {
+        color: black;
+        background: #e5e5e5; }
 
 .wrapper {
   width: 100%;

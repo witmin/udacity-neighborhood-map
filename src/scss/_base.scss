@@ -47,6 +47,10 @@ ul {
         color: $white;
         background: darken($navy, 10%);
       }
+      &.active {
+        color: $black;
+        background: $grey-light-2;
+      }
     }
   }
 }

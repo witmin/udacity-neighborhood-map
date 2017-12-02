@@ -7,35 +7,40 @@ const locations = [
         location: {
             lat: 37.6916105,
             lng: -122.4062711,
-        }
+        },
+        isActive: ko.observable(false)
     },
     {
         title: "Montgomery St. Station",
         location: {
             lat: 37.7894069,
             lng: -122.40106730000002,
-        }
+        },
+        isActive: ko.observable(false)
     },
     {
         title: "Hayward Station",
         location: {
             lat: 37.66974459999999,
             lng: -122.08703300000002
-        }
+        },
+        isActive: ko.observable(false)
     },
     {
         title: "San Francisco International Airport Station",
         location: {
             lat: 37.6159629,
             lng: -122.3924154,
-        }
+        },
+        isActive: ko.observable(false)
     },
     {
         title: "Daly City BART Station",
         location: {
             lat: 37.7063632,
             lng: -122.4692604,
-        }
+        },
+        isActive: ko.observable(false)
     }
 ];
 
@@ -47,9 +52,6 @@ let AppViewModel = function () {
 
     self.shouldShowNavigation = ko.observable(true);
 
-    // Map data
-    self.locations = ko.observableArray(locations);
-
     /**
      * @description toggle navigation display
      */
@@ -59,9 +61,24 @@ let AppViewModel = function () {
 
     /**
      * @description define the map data value for BART
+     * @type locations Array
      * @type {{zoom: number, lat: number, lng: number}}
      */
+    self.locations = ko.observableArray(locations);
+
     self.bartMap = {zoom: 11, lat: 37.71, lng: -122.2913078};
+
+    /**
+     * @description toggle locations active status
+     * @param location
+     */
+    self.toggleActive = function (location) {
+        for (let location of locations) {
+            location.isActive(false);
+        }
+        location.isActive(!location.isActive());
+        console.log(location);
+    }
 };
 
 /**

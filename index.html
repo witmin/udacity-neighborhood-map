@@ -20,7 +20,7 @@
         </form>
         <!-- locations list -->
         <ul data-bind="foreach: locations">
-            <li><a href="#" data-bind="text:title"></a></li>
+            <li><a href="#" data-bind="text:title,  css: {active: isActive}, click: $parent.toggleActive"></a></li>
         </ul>
     </nav>
 
