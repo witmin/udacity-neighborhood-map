@@ -46,8 +46,12 @@ const initialPlaces = [
 
 let markers = [];
 let infowindow;
-let marker;
 
+/**
+ * @description set the Place object
+ * @param data
+ * @constructor
+ */
 let Place = function (data) {
     this.title = ko.observable(data.title.toString());
     this.location = ko.observable(data.location);
@@ -90,7 +94,7 @@ function populateInfoWindow(marker, infowindow) {
 
 /**
  * @description add a marker to the markers array
- * @param data
+ * @param title {String}, location {object}
  */
 function addMarker(title, location) {
     let marker = new google.maps.Marker({
@@ -102,7 +106,7 @@ function addMarker(title, location) {
 }
 
 /**
- * @description Removes the markers from the map
+ * @description Hide markers from the map
  */
 function clearMarkers() {
     showAllMarkers(null);
@@ -119,7 +123,6 @@ function showAllMarkers(map) {
             populateInfoWindow(marker, infowindow);
         });
     }
-
 }
 
 /**
@@ -145,9 +148,7 @@ let AppViewModel = function () {
         self.shouldShowNavigation(!self.shouldShowNavigation());
     };
     /**
-     * @description define the map data value for BART
-     * @type locations Array
-     * @type {{zoom: number, lat: number, lng: number}}
+     * @description add places to observableArray to init tha app
      */
     self.places = ko.observableArray([]);
 
@@ -190,6 +191,7 @@ let AppViewModel = function () {
         // get the clicked place marker data
         let marker = markers[context.$index()];
         marker.setAnimation(google.maps.Animation.BOUNCE);
+        // Make the marker bounce once
         setTimeout(function () {
             marker.setAnimation(null);
         }, 1400);
@@ -198,6 +200,16 @@ let AppViewModel = function () {
         populateInfoWindow(marker, infowindow);
     };
 
+    /**
+     * @description reset places with initial data
+     */
+    self.initPlaces = function () {
+        self.resetPlacesStatus();
+        self.places.removeAll();
+        initialPlaces.forEach(function (place) {
+            self.places.push(new Place(place));
+        });
+    };
     /**
      * @description reset all places status to inactive
      */
@@ -214,56 +226,41 @@ let AppViewModel = function () {
     self.deletePlaces = function () {
         self.places.removeAll();
     };
-    /**
-     * @description reset places with initial data
-     */
-    self.initPlaces = function () {
-        self.resetPlacesStatus();
-        self.places.removeAll();
-        initialPlaces.forEach(function (place) {
-            self.places.push(new Place(place));
-        });
-    };
+
 
     /**
-     * @description filter places
+     * @description filter places with the keyword input
      */
     self.keyword = ko.observable("");
 
     self.filterPlaces = function () {
         deleteMarkers();
-        // Reset the list if keyword is empty
+        // Reset the list and markers if keyword is empty
         if (self.keyword() === "") {
             self.initPlaces();
-                        showAllMarkers(self.map);
-
         } else {
             let filterResults = [];
             // compare string and update the list
             for (let i = 0, len = self.places().length; i < len; ++i) {
                 let title = self.places()[i].title().toString();
-                let lowerTitle = self.places()[i].title().toString().toLowerCase();
+                let placeTitle = title.toLowerCase();
                 let keyword = self.keyword().toString().toLowerCase();
-                let result = lowerTitle.includes(keyword);
-                // console.log(result);
-                // If the item includes the keyword, show it in the results
-                if (result === true) {
+
+                // If the item includes the keyword, add the place to results array and add marker
+                if (placeTitle.includes(keyword)) {
                     filterResults.push(self.places()[i]);
-                    let location = self.places()[i].location();
-                    addMarker(title, location);
+                    addMarker(title, self.places()[i].location());
                 }
             }
-
+            // Reset the self.places data with the filtered results
             self.deletePlaces();
-
             filterResults.forEach(function (place) {
                 self.places.push(place);
                 console.log(place);
             });
-
-            showAllMarkers(self.map);
-            console.log(markers);
         }
+        // Show all markers with the filtered results
+        showAllMarkers(self.map);
     };
 
     /**
@@ -279,9 +276,7 @@ let AppViewModel = function () {
         // reset markers
         showAllMarkers(self.map);
     }
-
 };
-
 
 $(function () {
     let viewModel = new AppViewModel();
