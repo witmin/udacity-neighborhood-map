@@ -61,7 +61,7 @@ let AppViewModel = function () {
      * @description define the map data value for BART
      * @type {{zoom: number, lat: number, lng: number}}
      */
-    self.bartMap = {zoom: 11, lat: 37.8271784, lng: -122.2913078};
+    self.bartMap = {zoom: 11, lat: 37.71, lng: -122.2913078};
 };
 
 /**
@@ -73,6 +73,7 @@ ko.bindingHandlers.map = {
         let value = valueAccessor();
         let valueUnwrapped = ko.unwrap(value);
 
+        // define default value for the map options
         let zoom = allBindings.get('mapZoom') || 11;
         let lat = allBindings.get('mapCenterLat') || 37.8271784;
         let lng = allBindings.get('mapCenterLng') || -122.2913078;
@@ -83,17 +84,25 @@ ko.bindingHandlers.map = {
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
 
-        // If map data is undefined, load the default value
-        if (valueUnwrapped === undefined) {
-            let map = new google.maps.Map(element, options);
-        } else {
-            // If map value is defined, load the latest data value in model
+
+        // If map value is defined, load the latest data value
+        if (valueUnwrapped !== undefined) {
             options = {
                 zoom: value.zoom,
                 center: new google.maps.LatLng(value.lat, value.lng),
             };
-            let map = new google.maps.Map(element, options);
         }
+
+        let map = new google.maps.Map(element, options);
+
+        // Show markers on the map
+        for (let location of locations) {
+            let marker = new google.maps.Marker({
+                position: location.location,
+                map: map
+            });
+        }
+
     }
 };
 
