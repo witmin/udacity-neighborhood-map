@@ -75,7 +75,7 @@ ko.bindingHandlers.map = {
 
         // define default value for the map options
         let zoom = allBindings.get('mapZoom') || 11;
-        let lat = allBindings.get('mapCenterLat') || 37.8271784;
+        let lat = allBindings.get('mapCenterLat') || 37.7271784;
         let lng = allBindings.get('mapCenterLng') || -122.2913078;
 
         let options = {
@@ -85,7 +85,7 @@ ko.bindingHandlers.map = {
         };
 
         // If map value is defined, load the latest data value
-        if (valueUnwrapped === undefined) {
+        if (valueUnwrapped !== undefined) {
             options = {
                 zoom: value.zoom,
                 center: new google.maps.LatLng(value.lat, value.lng),
@@ -95,13 +95,29 @@ ko.bindingHandlers.map = {
         // Create map
         let map = new google.maps.Map(element, options);
 
-        // Show markers on the map
+
+        /**
+         * @description show markers and InfoWindow
+         */
+        let infoWindow = new google.maps.InfoWindow();
+
         for (let location of locations) {
             let marker = new google.maps.Marker({
                 position: location.location,
-                map: map
+                map: map,
+                title: location.title
+            });
+
+            // Show marker on clicking
+            marker.addListener('click', function () {
+                infoWindow.close();
+                infoWindow = new google.maps.InfoWindow({
+                    content: location.title
+                });
+                infoWindow.open(map, marker);
             });
         }
+
 
     }
 };
