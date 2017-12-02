@@ -84,15 +84,15 @@ ko.bindingHandlers.map = {
             mapTypeId: google.maps.MapTypeId.ROADMAP
         };
 
-
         // If map value is defined, load the latest data value
-        if (valueUnwrapped !== undefined) {
+        if (valueUnwrapped === undefined) {
             options = {
                 zoom: value.zoom,
                 center: new google.maps.LatLng(value.lat, value.lng),
             };
         }
 
+        // Create map
         let map = new google.maps.Map(element, options);
 
         // Show markers on the map
