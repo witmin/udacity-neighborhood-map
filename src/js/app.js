@@ -67,23 +67,25 @@ let Place = function (data) {
     });
 
     markers.push(marker);
-
-    function populateInfoWindow(marker, infowindow) {
-        // Check to make sure the infowindow is not already opened on this marker.
-        if (infowindow.marker !== marker) {
-            infowindow.marker = marker;
-            infowindow.setContent('<div>' + marker.title + '</div>');
-            infowindow.open(map, marker);
-            // Make sure the marker property is cleared if the infowindow is closed.
-            infowindow.addListener('closeclick', function () {
-                infowindow.marker = null;
-            });
-        }
-    }
-
-
 };
 
+/**
+ * @description populate info window for a marker
+ * @param marker
+ * @param infowindow
+ */
+function populateInfoWindow(marker, infowindow) {
+    // Check to make sure the infowindow is not already opened on this marker.
+    if (infowindow.marker !== marker) {
+        infowindow.marker = marker;
+        infowindow.setContent('<div>' + marker.title + '</div>');
+        infowindow.open(map, marker);
+        // Make sure the marker property is cleared if the infowindow is closed.
+        infowindow.addListener('closeclick', function () {
+            infowindow.marker = null;
+        });
+    }
+}
 
 /**
  * @description define the app view model
@@ -120,14 +122,32 @@ let AppViewModel = function () {
      * @description toggle places active status
      * @param clickedPlace
      */
-    self.setActivePlace = function (clickedPlace) {
+    self.setActivePlace = function (clickedPlace, event) {
         for (let i = 0, len = self.places().length; i < len; ++i) {
             let place = self.places()[i];
             place.isActive(false);
         }
-        clickedPlace.isActive(!clickedPlace.isActive());
+
+        clickedPlace.isActive(true);
+        let context = ko.contextFor(event.target);
+
+        console.log(context.$index());
+
+        // get the clicked place marker data
+        let marker = markers[context.$index()];
+        // show marker info window on clicked place
+        populateInfoWindow(marker, infowindow);
     };
 
+    /**
+     * @description reset all places status to inactive
+     */
+    self.resetPlacesStatus = function () {
+        for (let i = 0, len = self.places().length; i < len; ++i) {
+            let place = self.places()[i];
+            place.isActive(false);
+        }
+    }
 };
 
 /**
@@ -168,7 +188,10 @@ ko.bindingHandlers.map = {
             marker.setMap(map);
             bounds.extend(marker.position);
         });
+
         map.fitBounds(bounds);
+
+
     }
 };
 
