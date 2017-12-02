@@ -46,6 +46,7 @@ const initialPlaces = [
 
 let markers = [];
 let infowindow;
+let marker;
 
 let Place = function (data) {
     this.title = ko.observable(data.title.toString());
@@ -55,10 +56,11 @@ let Place = function (data) {
     this.isActive = ko.observable(data.isActive);
 
     let marker = new google.maps.Marker({
-        position: new google.maps.LatLng(data.location.lat, data.location.lng),
+        position: new google.maps.LatLng(data.location),
         title: data.title,
         animation: google.maps.Animation.DROP
     });
+    markers.push(marker);
 
     infowindow = new google.maps.InfoWindow();
 
@@ -66,8 +68,6 @@ let Place = function (data) {
     marker.addListener('click', function () {
         populateInfoWindow(marker, infowindow);
     });
-
-    markers.push(marker);
 };
 
 /**
@@ -86,6 +86,44 @@ function populateInfoWindow(marker, infowindow) {
             infowindow.marker = null;
         });
     }
+}
+
+/**
+ * @description add a marker to the markers array
+ * @param data
+ */
+function addMarker(title, location) {
+    let marker = new google.maps.Marker({
+        position: new google.maps.LatLng(location),
+        title: title,
+        animation: google.maps.Animation.DROP
+    });
+    markers.push(marker);
+}
+
+/**
+ * @description Removes the markers from the map
+ */
+function clearMarkers() {
+    showAllMarkers(null);
+}
+
+/**
+ * @description Set all markers on the map
+ * @param map
+ */
+function showAllMarkers(map) {
+    for (let i = 0; i < markers.length; i++) {
+        markers[i].setMap(map);
+    }
+}
+
+/**
+ * @description delete markers and remove from makers array.
+ */
+function deleteMarkers() {
+    clearMarkers();
+    markers = [];
 }
 
 /**
@@ -118,6 +156,17 @@ let AppViewModel = function () {
      * @type {{zoom: number, lat: number, lng: number}}
      */
     self.mapOptions = {zoom: 8, lat: 37.71, lng: -122.2913078};
+
+    self.options = {
+        zoom: 11,
+        center: new google.maps.LatLng(37.71, -122.2913078),
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+    self.mapElement = document.getElementById('map');
+    self.map = new google.maps.Map(self.mapElement, self.options);
+
+    showAllMarkers(self.map);
 
     /**
      * @description toggle places active status
@@ -156,20 +205,36 @@ let AppViewModel = function () {
     };
 
     /**
+     * @description delete places data from the array
+     */
+    self.deletePlaces = function () {
+        self.places.removeAll();
+    };
+    /**
+     * @description reset places with initial data
+     */
+    self.initPlaces = function () {
+        self.resetPlacesStatus();
+        self.places.removeAll();
+        initialPlaces.forEach(function (place) {
+            self.places.push(new Place(place));
+            addMarker(place.title, place.location);
+        });
+    };
+
+    /**
      * @description filter places
      */
     self.keyword = ko.observable("");
 
     self.filterPlaces = function () {
+        deleteMarkers();
         // Reset the list if keyword is empty
         if (self.keyword() === "") {
-            self.places.removeAll();
-            initialPlaces.forEach(function (place) {
-                self.places.push(new Place(place));
-            });
-            // compare string and update the list
+            self.initPlaces();
         } else {
             let filterResults = [];
+            // compare string and update the list
             for (let i = 0, len = self.places().length; i < len; ++i) {
                 let name = self.places()[i].title().toString().toLowerCase();
                 let keyword = self.keyword().toString().toLowerCase();
@@ -180,58 +245,20 @@ let AppViewModel = function () {
                     filterResults.push(self.places()[i]);
                 }
             }
-            // Reset self.places
-            self.places.removeAll();
+
+            self.deletePlaces();
 
             filterResults.forEach(function (place) {
                 self.places.push(place);
+                addMarker(place.title, place.location);
+                console.log(place);
             });
+
+            showAllMarkers(self.map);
+            console.log(markers);
         }
     }
 
-};
-
-/**
- * @description create custom bindings for google map
- */
-ko.bindingHandlers.map = {
-    init: function (element, valueAccessor, allBindings) {
-        // get the latest data for the map
-        let value = valueAccessor();
-        let valueUnwrapped = ko.unwrap(value);
-
-        // define default value for the map options
-        let zoom = allBindings.get('mapZoom') || 11;
-        let lat = allBindings.get('mapCenterLat') || 37.7271784;
-        let lng = allBindings.get('mapCenterLng') || -122.2913078;
-
-        let options = {
-            zoom: zoom,
-            center: new google.maps.LatLng(lat, lng),
-            mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
-
-        // If map value is defined, load the latest data value
-        if (valueUnwrapped !== undefined) {
-            options = {
-                zoom: value.zoom,
-                center: new google.maps.LatLng(value.lat, value.lng),
-            };
-        }
-
-        // Create map
-        let map = new google.maps.Map(element, options);
-
-        // Show markers
-        let bounds = new google.maps.LatLngBounds();
-        // Extend the boundaries of the map for each marker and display the marker
-        markers.forEach(function (marker) {
-            marker.setMap(map);
-            bounds.extend(marker.position);
-        });
-
-        map.fitBounds(bounds);
-    }
 };
 
 
