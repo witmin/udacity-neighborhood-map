@@ -77,8 +77,9 @@ let AppViewModel = function () {
             location.isActive(false);
         }
         location.isActive(!location.isActive());
-        console.log(location);
-    }
+    };
+
+
 };
 
 /**
@@ -112,11 +113,12 @@ ko.bindingHandlers.map = {
         // Create map
         let map = new google.maps.Map(element, options);
 
-
         /**
          * @description show markers and InfoWindow
          */
         let infoWindow = new google.maps.InfoWindow();
+
+        let bounds = new google.maps.LatLngBounds();
 
         for (let location of locations) {
             let marker = new google.maps.Marker({
@@ -124,6 +126,8 @@ ko.bindingHandlers.map = {
                 map: map,
                 title: location.title
             });
+
+            bounds.extend(location.location);
 
             // Show marker on clicking
             marker.addListener('click', function () {
@@ -135,7 +139,7 @@ ko.bindingHandlers.map = {
             });
         }
 
-
+        map.fitBounds(bounds);
     }
 };
 
