@@ -137,6 +137,9 @@ let AppViewModel = function () {
         // get the clicked place marker data
         let marker = markers[context.$index()];
         marker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(function () {
+            marker.setAnimation(null);
+        }, 1400);
 
         // show marker info window on clicked place
         populateInfoWindow(marker, infowindow);
@@ -164,7 +167,7 @@ let AppViewModel = function () {
             initialPlaces.forEach(function (place) {
                 self.places.push(new Place(place));
             });
-        // compare string and update the list
+            // compare string and update the list
         } else {
             for (let i = 0, len = self.places().length; i < len; ++i) {
                 let name = self.places()[i].title().toString().toLowerCase();
