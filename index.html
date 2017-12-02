@@ -15,12 +15,12 @@
         <h2>Station locations</h2>
         <!-- filter-->
         <form id="filter-form">
-            <input type="text" id="location-keyword" placeholder="Station location">
+            <input type="text" id="location-keyword" placeholder="Station name">
             <button id="filter-button">Filter</button>
         </form>
-        <!-- locations list -->
-        <ul data-bind="foreach: locations">
-            <li><a href="#" data-bind="text:title,  css: {active: isActive}, click: $parent.toggleActive"></a></li>
+        <!-- places list -->
+        <ul data-bind="foreach: places">
+            <li><a href="#" data-bind="text:title,  css: {active: isActive}, click: $parent.setActivePlace"></a></li>
         </ul>
     </nav>
 
@@ -30,10 +30,10 @@
             <a href="#" id="toggle-menu-button" title="toggle menu display" data-bind="click: toggleNavigation"><img
                     src="images/menu.svg"
                     alt="Show or hide menu"></a>
-            <h1 class="title">BART Locations San Francisco</h1>
+            <h1 class="title">BART Places</h1>
         </header>
         <!-- Map-->
-        <div id="map" data-bind="map: bartMap"></div>
+        <div id="map" data-bind="map"></div>
     </main>
 
 </div>
