@@ -15,7 +15,7 @@
         <h2>BART Stations</h2>
         <!-- filter-->
         <form id="filter-form" data-bind="submit: filterPlaces">
-            <input type="text" data-bind="textInput: keyword" id="location-keyword" placeholder="Station name">
+            <input type="text" data-bind="textInput: keyword, click: resetFilter" id="location-keyword" placeholder="Station name">
             <button id="filter-button" type="submit">Filter</button>
         </form>
         <!-- places list -->

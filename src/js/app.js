@@ -115,7 +115,11 @@ function clearMarkers() {
 function showAllMarkers(map) {
     for (let i = 0; i < markers.length; i++) {
         markers[i].setMap(map);
+        markers[i].addListener('click', function () {
+            populateInfoWindow(marker, infowindow);
+        });
     }
+
 }
 
 /**
@@ -152,7 +156,7 @@ let AppViewModel = function () {
     });
 
     /**
-     * @description define map options
+     * @description Initialise the map
      * @type {{zoom: number, lat: number, lng: number}}
      */
     self.mapOptions = {zoom: 8, lat: 37.71, lng: -122.2913078};
@@ -218,7 +222,6 @@ let AppViewModel = function () {
         self.places.removeAll();
         initialPlaces.forEach(function (place) {
             self.places.push(new Place(place));
-            addMarker(place.title, place.location);
         });
     };
 
@@ -232,17 +235,22 @@ let AppViewModel = function () {
         // Reset the list if keyword is empty
         if (self.keyword() === "") {
             self.initPlaces();
+                        showAllMarkers(self.map);
+
         } else {
             let filterResults = [];
             // compare string and update the list
             for (let i = 0, len = self.places().length; i < len; ++i) {
-                let name = self.places()[i].title().toString().toLowerCase();
+                let title = self.places()[i].title().toString();
+                let lowerTitle = self.places()[i].title().toString().toLowerCase();
                 let keyword = self.keyword().toString().toLowerCase();
-                let result = name.includes(keyword);
+                let result = lowerTitle.includes(keyword);
                 // console.log(result);
                 // If the item includes the keyword, show it in the results
                 if (result === true) {
                     filterResults.push(self.places()[i]);
+                    let location = self.places()[i].location();
+                    addMarker(title, location);
                 }
             }
 
@@ -250,13 +258,26 @@ let AppViewModel = function () {
 
             filterResults.forEach(function (place) {
                 self.places.push(place);
-                addMarker(place.title, place.location);
                 console.log(place);
             });
 
             showAllMarkers(self.map);
             console.log(markers);
         }
+    };
+
+    /**
+     * @description reset filter
+     */
+    self.resetFilter = function () {
+        // delete markers
+        deleteMarkers();
+        // reset keyword
+        self.keyword("");
+        // Init Places
+        self.initPlaces();
+        // reset markers
+        showAllMarkers(self.map);
     }
 
 };
