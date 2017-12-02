@@ -53,18 +53,16 @@ let infowindow;
  * @constructor
  */
 let Place = function (data) {
-    this.title = ko.observable(data.title.toString());
+    this.title = ko.observable(data.title);
     this.location = ko.observable(data.location);
     this.lat = ko.observable(data.location.lat);
     this.lng = ko.observable(data.location.lng);
     this.isActive = ko.observable(data.isActive);
 
     let marker = new google.maps.Marker({
-        position: new google.maps.LatLng(data.location),
-        title: data.title,
-        animation: google.maps.Animation.DROP
+        position: new google.maps.LatLng(data.location.lat, data.location.lng),
+        title: data.title
     });
-    markers.push(marker);
 
     infowindow = new google.maps.InfoWindow();
 
@@ -72,6 +70,8 @@ let Place = function (data) {
     marker.addListener('click', function () {
         populateInfoWindow(marker, infowindow);
     });
+
+    markers.push(marker);
 };
 
 /**
@@ -120,7 +120,7 @@ function showAllMarkers(map) {
     for (let i = 0; i < markers.length; i++) {
         markers[i].setMap(map);
         markers[i].addListener('click', function () {
-            populateInfoWindow(marker, infowindow);
+            populateInfoWindow(markers[i], infowindow);
         });
     }
 }
@@ -185,8 +185,6 @@ let AppViewModel = function () {
 
         clickedPlace.isActive(true);
         let context = ko.contextFor(event.target);
-
-        console.log(context.$index());
 
         // get the clicked place marker data
         let marker = markers[context.$index()];
