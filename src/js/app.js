@@ -61,7 +61,8 @@ let Place = function (data) {
 
     let marker = new google.maps.Marker({
         position: new google.maps.LatLng(data.location.lat, data.location.lng),
-        title: data.title
+        title: data.title,
+        animation: google.maps.Animation.DROP
     });
 
     infowindow = new google.maps.InfoWindow();
