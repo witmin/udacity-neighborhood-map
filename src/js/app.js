@@ -56,7 +56,8 @@ let Place = function (data) {
 
     let marker = new google.maps.Marker({
         position: new google.maps.LatLng(data.location.lat, data.location.lng),
-        title: data.title
+        title: data.title,
+        animation: google.maps.Animation.DROP
     });
 
     infowindow = new google.maps.InfoWindow();
@@ -135,6 +136,8 @@ let AppViewModel = function () {
 
         // get the clicked place marker data
         let marker = markers[context.$index()];
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+
         // show marker info window on clicked place
         populateInfoWindow(marker, infowindow);
     };
