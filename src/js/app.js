@@ -48,7 +48,7 @@ let markers = [];
 let infowindow;
 
 let Place = function (data) {
-    this.title = ko.observable(data.title);
+    this.title = ko.observable(data.title.toString());
     this.location = ko.observable(data.location);
     this.lat = ko.observable(data.location.lat);
     this.lng = ko.observable(data.location.lng);
@@ -150,7 +150,41 @@ let AppViewModel = function () {
             let place = self.places()[i];
             place.isActive(false);
         }
+    };
+
+    /**
+     * @description filter places
+     */
+    self.keyword = ko.observable("");
+
+    self.filterPlaces = function () {
+        let filterResults = [];
+        // Reset the list if keyword is empty
+        if (self.keyword() === "") {
+            initialPlaces.forEach(function (place) {
+                self.places.push(new Place(place));
+            });
+        // compare string and update the list
+        } else {
+            for (let i = 0, len = self.places().length; i < len; ++i) {
+                let name = self.places()[i].title().toString().toLowerCase();
+                let keyword = self.keyword().toString().toLowerCase();
+                let result = name.includes(keyword);
+                // console.log(result);
+                // If the item includes the keyword, show it in the results
+                if (result === true) {
+                    filterResults.push(self.places()[i]);
+                }
+            }
+            // Reset self.places
+            self.places.removeAll();
+
+            filterResults.forEach(function (place) {
+                self.places.push(place);
+            });
+        }
     }
+
 };
 
 /**
@@ -193,8 +227,6 @@ ko.bindingHandlers.map = {
         });
 
         map.fitBounds(bounds);
-
-
     }
 };
 

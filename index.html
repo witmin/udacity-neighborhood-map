@@ -14,9 +14,9 @@
     <nav id="nav" data-bind="visible: shouldShowNavigation">
         <h2>BART Stations</h2>
         <!-- filter-->
-        <form id="filter-form">
-            <input type="text" id="location-keyword" placeholder="Station name">
-            <button id="filter-button">Filter</button>
+        <form id="filter-form" data-bind="submit: filterPlaces">
+            <input type="text" data-bind="textInput: keyword" id="location-keyword" placeholder="Station name">
+            <button id="filter-button" type="submit">Filter</button>
         </form>
         <!-- places list -->
         <ul data-bind="foreach: places">
