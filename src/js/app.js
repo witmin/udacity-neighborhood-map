@@ -152,10 +152,7 @@ function getWikiPage(title) {
     $.ajax({
         url: '//en.wikipedia.org/w/api.php',
         data: {action: 'query', list: 'search', srsearch: title, format: 'json'},
-        dataType: 'jsonp',
-        success: function (data) {
-            // console.log(data);
-        }
+        dataType: 'jsonp'
     }).done(populateWikiContent)
         .fail(function (error) {
             requestError(error);
