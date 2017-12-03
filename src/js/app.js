@@ -71,6 +71,11 @@ let Place = function (data) {
     // Show marker on clicking
     marker.addListener('click', function () {
         populateInfoWindow(marker, infowindow);
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+        // Make the marker bounce once
+        setTimeout(function () {
+            marker.setAnimation(null);
+        }, 1400);
     });
 
     markers.push(marker);
@@ -138,7 +143,6 @@ function deleteMarkers() {
     markers = [];
 }
 
-const responseContainer = document.querySelector('#response-container');
 
 /**
  * @description fetch wikipedia API data for each place
@@ -183,7 +187,8 @@ function populateWikiContent(data) {
  */
 function requestError(e) {
     console.log(e);
-    responseContainer.insertAdjacentHTML('beforeEnd', `<p class="network-warning error"> There was an error to make the request.</p>`);
+    let contentWrapper = document.querySelector("#info-content");
+    contentWrapper.insertAdjacentHTML('beforeEnd', `<p class="network-warning error"> There was an error to make the request.</p>`);
 }
 
 /**
