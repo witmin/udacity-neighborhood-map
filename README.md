@@ -43,7 +43,7 @@ npm run watch-css
 3. Done. Once you update styles in SCSS files, the SCSS file should be transpiled and sent to the output folder `dist/css/app.css`
 
 
-# Set yo Google Map with your API Key
+# Set your Google Map with your API Key
 1. On the bottom of `index.html` before the `</body>`, you should find the google map JavaScript API script:
 ```angular2html
 <script async defer
