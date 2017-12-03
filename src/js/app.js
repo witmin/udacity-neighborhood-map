@@ -65,7 +65,7 @@ let Place = function (data) {
     });
 
     infowindow = new google.maps.InfoWindow({
-        maxWidth: 360
+        maxWidth: 320
     });
 
     // Show marker on clicking
@@ -85,9 +85,10 @@ function populateInfoWindow(marker, infowindow) {
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker !== marker) {
         infowindow.marker = marker;
+        getWikiPage(marker.title);
         infowindow.setContent(`<h2 class="marker-title">${marker.title}</h2><div id="info-content"></div>
 <div id="response-container"></div>`);
-        getWikiPage(marker.title);
+
         infowindow.open(map, marker);
         // Make sure the marker property is cleared if the infowindow is closed.
         infowindow.addListener('closeclick', function () {
@@ -137,12 +138,12 @@ function deleteMarkers() {
     markers = [];
 }
 
+const responseContainer = document.querySelector('#response-container');
+
 /**
  * @description fetch wikipedia API data for each place
  * API doc: https://www.mediawiki.org/wiki/API:Main_page
  */
-const responseContainer = document.querySelector('#response-container');
-
 function getWikiPage(title) {
     $.ajax({
         url: '//en.wikipedia.org/w/api.php',
@@ -150,8 +151,6 @@ function getWikiPage(title) {
         dataType: 'jsonp',
         success: function (data) {
             console.log(data);
-            console.log('pageid', data.query.search[0].pageid);
-
         }
     }).done(populateWikiContent)
         .fail(function (error) {
@@ -171,14 +170,14 @@ function populateWikiContent(data) {
         let pageId = data.query.search[0].pageid;
         let pageUrl = "https://en.wikipedia.org/?curid=" + pageId;
         console.log(pageUrl);
-        htmlContent = `<p class="snippet">${snippet}</p><a href="${pageUrl}">Learn more on Wikipedia</a>`;
+        htmlContent = `<p class="snippet">${snippet}</p><a href="https://en.wikipedia.org/?curid=49418847">Learn more on Wikipedia</a>`;
         console.log(htmlContent);
 
     } else {
         htmlContent = '<div class="error-no-content">No wikipedia content available</div>';
     }
 
-    contentWrapper.insertAdjacentHTML('beforeend', htmlContent);
+    contentWrapper.insertAdjacentHTML('beforeEnd', htmlContent);
 }
 
 /**
@@ -187,7 +186,7 @@ function populateWikiContent(data) {
  */
 function requestError(e) {
     console.log(e);
-    responseContainer.insertAdjacentHTML('beforeend', `<p class="network-warning error"> There was an error to make the request.</p>`);
+    responseContainer.insertAdjacentHTML('beforeEnd', `<p class="network-warning error"> There was an error to make the request.</p>`);
 }
 
 /**
