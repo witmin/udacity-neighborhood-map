@@ -64,7 +64,9 @@ let Place = function (data) {
         animation: google.maps.Animation.DROP
     });
 
-    infowindow = new google.maps.InfoWindow();
+    infowindow = new google.maps.InfoWindow({
+        maxWidth: 360
+    });
 
     // Show marker on clicking
     marker.addListener('click', function () {
