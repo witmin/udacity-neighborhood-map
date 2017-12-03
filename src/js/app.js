@@ -46,7 +46,6 @@ const initialPlaces = [
 
 let markers = [];
 let infowindow;
-
 /**
  * @description set the Place object
  * @param data
@@ -84,7 +83,9 @@ function populateInfoWindow(marker, infowindow) {
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker !== marker) {
         infowindow.marker = marker;
-        infowindow.setContent('<div>' + marker.title + '</div>');
+        infowindow.setContent(`<h2 class="marker-title">${marker.title}</h2><div id="info-content"></div>
+<div id="response-container"></div>`);
+        getWikiPage(marker.title);
         infowindow.open(map, marker);
         // Make sure the marker property is cleared if the infowindow is closed.
         infowindow.addListener('closeclick', function () {
@@ -132,6 +133,59 @@ function showAllMarkers(map) {
 function deleteMarkers() {
     clearMarkers();
     markers = [];
+}
+
+/**
+ * @description fetch wikipedia API data for each place
+ * API doc: https://www.mediawiki.org/wiki/API:Main_page
+ */
+const responseContainer = document.querySelector('#response-container');
+
+function getWikiPage(title) {
+    $.ajax({
+        url: '//en.wikipedia.org/w/api.php',
+        data: {action: 'query', list: 'search', srsearch: title, format: 'json'},
+        dataType: 'jsonp',
+        success: function (data) {
+            console.log(data);
+            console.log('pageid', data.query.search[0].pageid);
+
+        }
+    }).done(populateWikiContent)
+        .fail(function (error) {
+            requestError(error);
+        });
+}
+
+/**
+ * @description get wiki content snippet and page url and show the page in info window
+ * @param data
+ */
+function populateWikiContent(data) {
+    let htmlContent = '';
+    let contentWrapper = document.querySelector("#info-content");
+    if (data) {
+        let snippet = data.query.search[0].snippet;
+        let pageId = data.query.search[0].pageid;
+        let pageUrl = "https://en.wikipedia.org/?curid=" + pageId;
+        console.log(pageUrl);
+        htmlContent = `<p class="snippet">${snippet}</p><a href="${pageUrl}">Learn more on Wikipedia</a>`;
+        console.log(htmlContent);
+
+    } else {
+        htmlContent = '<div class="error-no-content">No wikipedia content available</div>';
+    }
+
+    contentWrapper.insertAdjacentHTML('beforeend', htmlContent);
+}
+
+/**
+ * @description show request error message
+ * @param e
+ */
+function requestError(e) {
+    console.log(e);
+    responseContainer.insertAdjacentHTML('beforeend', `<p class="network-warning error"> There was an error to make the request.</p>`);
 }
 
 /**
