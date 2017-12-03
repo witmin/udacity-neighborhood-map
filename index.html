@@ -15,7 +15,8 @@
         <h2>BART Stations</h2>
         <!-- filter-->
         <form id="filter-form" data-bind="submit: filterPlaces">
-            <input type="text" data-bind="textInput: keyword, click: resetFilter" id="location-keyword" placeholder="Station name">
+            <input type="text" data-bind="textInput: keyword, click: resetFilter" id="location-keyword"
+                   placeholder="Station name">
             <button id="filter-button" type="submit">Filter</button>
         </form>
         <!-- places list -->
@@ -41,8 +42,10 @@
 <div id="response-container"></div>
 <!-- Javascript for the application -->
 <script src="lib/knockout.js"></script>
-<script src="dist/js/app.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCVBYSInGUKraOMZn03oRILz2Iq3myYYg8" async defer></script>
+<!-- TODO: babel and update path to /dist -->
+<script src="src/js/app.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCVBYSInGUKraOMZn03oRILz2Iq3myYYg8&callback=initialize" async
+        defer></script>
 
 </body>
 </html>

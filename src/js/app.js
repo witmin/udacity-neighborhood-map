@@ -44,8 +44,26 @@ const initialPlaces = [
     }
 ];
 
+let map;
 let markers = [];
 let infowindow;
+
+/**
+ * Initialize google map
+ */
+function initialize() {
+    let mapOptions = {
+        zoom: 11,
+        center: new google.maps.LatLng(37.71, -122.2913078),
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+
+    let mapElement = document.getElementById('map');
+    map = new google.maps.Map(mapElement, mapOptions);
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+}
+
 /**
  * @description set the Place object
  * @param data
@@ -211,22 +229,7 @@ let AppViewModel = function () {
         self.places.push(new Place(place));
     });
 
-    /**
-     * @description Initialise the map
-     * @type {{zoom: number, lat: number, lng: number}}
-     */
-    self.mapOptions = {zoom: 8, lat: 37.71, lng: -122.2913078};
-
-    self.options = {
-        zoom: 11,
-        center: new google.maps.LatLng(37.71, -122.2913078),
-        mapTypeId: google.maps.MapTypeId.ROADMAP
-    };
-
-    self.mapElement = document.getElementById('map');
-    self.map = new google.maps.Map(self.mapElement, self.options);
-
-    showAllMarkers(self.map);
+    showAllMarkers(map);
 
     /**
      * @description toggle places active status
@@ -313,7 +316,7 @@ let AppViewModel = function () {
             });
         }
         // Show all markers with the filtered results
-        showAllMarkers(self.map);
+        showAllMarkers(map);
     };
 
     /**
@@ -327,7 +330,7 @@ let AppViewModel = function () {
         // Init Places
         self.initPlaces();
         // reset markers
-        showAllMarkers(self.map);
+        showAllMarkers(map);
     }
 };
 
