@@ -1,6 +1,15 @@
 # Neighborhood Map
 
 # Get started
+The app *must* run on a server to get it work properly.
+1. Clone or download the repository to your local machine
+2. Install node.js
+3. Open terminal, `cd` to the root folder of the project
+4. In terminal, run `npm install http-server -g` to install *http-server*
+5. In the root folder of the project, run `http-server` to start the server.
+6. After the http-server successfully run, please follow the guidelines in terminal and open the available address such as `http://127.0.0.1:8080` or `http://127.0.0.1:8080` to start.
+ 
+# For further developement
 If you want to develop the Neighborhood Map base on this version, please
 1. clone or download the repository to your local machine
 2. initialize git for version control
