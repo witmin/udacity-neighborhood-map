@@ -337,4 +337,14 @@ let AppViewModel = function () {
 $(function () {
     let viewModel = new AppViewModel();
     ko.applyBindings(viewModel);
+
+    // Check if the Google Map API has been loaded, if not, show warning
+    if (!window.google || !window.google.maps) {
+        let script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?&callback=initialize`;
+        alert("There are some problems with Google Map API loading" + script);
+    }
+    else {
+        initialize();
+    }
 });
