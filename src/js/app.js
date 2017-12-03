@@ -150,7 +150,7 @@ function getWikiPage(title) {
         data: {action: 'query', list: 'search', srsearch: title, format: 'json'},
         dataType: 'jsonp',
         success: function (data) {
-            console.log(data);
+            // console.log(data);
         }
     }).done(populateWikiContent)
         .fail(function (error) {
@@ -167,11 +167,8 @@ function populateWikiContent(data) {
     let contentWrapper = document.querySelector("#info-content");
     if (data) {
         let snippet = data.query.search[0].snippet;
-        let pageId = data.query.search[0].pageid;
-        let pageUrl = "https://en.wikipedia.org/?curid=" + pageId;
-        console.log(pageUrl);
-        htmlContent = `<p class="snippet">${snippet}</p><a href="https://en.wikipedia.org/?curid=49418847">Learn more on Wikipedia</a>`;
-        console.log(htmlContent);
+
+        htmlContent = `<p>Relevant entry snippet on Wikipedia:</p><p class="snippet">${snippet}</p>`;
 
     } else {
         htmlContent = '<div class="error-no-content">No wikipedia content available</div>';
