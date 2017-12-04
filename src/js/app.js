@@ -45,6 +45,7 @@ const initialPlaces = [
 ];
 
 let map;
+let marker;
 let markers = [];
 let infowindow;
 
@@ -59,9 +60,49 @@ function initialize() {
     };
 
     let mapElement = document.getElementById('map');
+
     map = new google.maps.Map(mapElement, mapOptions);
 
+
+    // Init info window
+    infowindow = new google.maps.InfoWindow({
+        maxWidth: 320
+    });
+
+    // Init markers
+    initMarkers();
+
     google.maps.event.addDomListener(window, 'load', initialize);
+}
+
+/**
+ * @description initilise markers base on initial places data
+ */
+function initMarkers() {
+    // Init markers
+    for (let place of initialPlaces) {
+        markers = [];
+        marker = new google.maps.Marker({
+            position: new google.maps.LatLng(place.location.lat, place.location.lng),
+            title: place.title,
+            map: map,
+            animation: google.maps.Animation.DROP
+        });
+        markers.push(marker);
+
+        markerEventListener(marker);
+    }
+}
+
+function markerEventListener(marker) {
+    google.maps.event.addListener(marker, 'click', (function (marker) {
+        populateInfoWindow(marker, infowindow);
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+        // Make the marker bounce once
+        setTimeout(function () {
+            marker.setAnimation(null);
+        }, 1400);
+    })(marker));
 }
 
 /**
@@ -76,27 +117,23 @@ let Place = function (data) {
     this.lng = ko.observable(data.location.lng);
     this.isActive = ko.observable(data.isActive);
 
-    let marker = new google.maps.Marker({
-        position: new google.maps.LatLng(data.location.lat, data.location.lng),
-        title: data.title,
-        animation: google.maps.Animation.DROP
-    });
 
-    infowindow = new google.maps.InfoWindow({
-        maxWidth: 320
-    });
+    // marker.setTitle(data.title);
+    // marker.setAnimation(google.maps.Animation.DROP);
+
+    // markers.push(marker);
+    // marker.setTitle(data.title);
+    // marker.setAnimation(google.maps.Animation.DROP);
 
     // Show marker on clicking
-    marker.addListener('click', function () {
-        populateInfoWindow(marker, infowindow);
-        marker.setAnimation(google.maps.Animation.BOUNCE);
-        // Make the marker bounce once
-        setTimeout(function () {
-            marker.setAnimation(null);
-        }, 1400);
-    });
-
-    markers.push(marker);
+    // marker.addListener('click', function () {
+    //     populateInfoWindow(marker, infowindow);
+    //     marker.setAnimation(google.maps.Animation.BOUNCE);
+    //     // Make the marker bounce once
+    //     setTimeout(function () {
+    //         marker.setAnimation(null);
+    //     }, 1400);
+    // });
 };
 
 /**
@@ -228,6 +265,9 @@ let AppViewModel = function () {
     initialPlaces.forEach(function (place) {
         self.places.push(new Place(place));
     });
+
+    // Listen to marker click event
+    // markerEventListener();
 
     showAllMarkers(map);
 
