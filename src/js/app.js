@@ -63,45 +63,43 @@ function initialize() {
 
     map = new google.maps.Map(mapElement, mapOptions);
 
-
     // Init info window
     infowindow = new google.maps.InfoWindow({
-        maxWidth: 320
+        maxWidth: 320,
+        content: 'test'
     });
 
-    // Init markers
-    initMarkers();
+    markers = [];
 
-    google.maps.event.addDomListener(window, 'load', initialize);
-}
-
-/**
- * @description initilise markers base on initial places data
- */
-function initMarkers() {
     // Init markers
     for (let place of initialPlaces) {
-        markers = [];
         marker = new google.maps.Marker({
             position: new google.maps.LatLng(place.location.lat, place.location.lng),
             title: place.title,
             map: map,
             animation: google.maps.Animation.DROP
         });
-        markers.push(marker);
 
+        markers.push(marker);
+    }
+
+    // add marker click listener
+    for (let marker of markers) {
         markerEventListener(marker);
     }
 }
 
 function markerEventListener(marker) {
     google.maps.event.addListener(marker, 'click', (function (marker) {
-        populateInfoWindow(marker, infowindow);
-        marker.setAnimation(google.maps.Animation.BOUNCE);
-        // Make the marker bounce once
-        setTimeout(function () {
-            marker.setAnimation(null);
-        }, 1400);
+        return function () {
+            marker.setAnimation(google.maps.Animation.BOUNCE);
+            // Make the marker bounce once
+            setTimeout(function () {
+                marker.setAnimation(null);
+            }, 1400);
+            infowindow.setContent(marker.title);
+            infowindow.open(map, marker);
+        }
     })(marker));
 }
 
@@ -116,24 +114,6 @@ let Place = function (data) {
     this.lat = ko.observable(data.location.lat);
     this.lng = ko.observable(data.location.lng);
     this.isActive = ko.observable(data.isActive);
-
-
-    // marker.setTitle(data.title);
-    // marker.setAnimation(google.maps.Animation.DROP);
-
-    // markers.push(marker);
-    // marker.setTitle(data.title);
-    // marker.setAnimation(google.maps.Animation.DROP);
-
-    // Show marker on clicking
-    // marker.addListener('click', function () {
-    //     populateInfoWindow(marker, infowindow);
-    //     marker.setAnimation(google.maps.Animation.BOUNCE);
-    //     // Make the marker bounce once
-    //     setTimeout(function () {
-    //         marker.setAnimation(null);
-    //     }, 1400);
-    // });
 };
 
 /**
@@ -184,9 +164,6 @@ function clearMarkers() {
 function showAllMarkers(map) {
     for (let i = 0; i < markers.length; i++) {
         markers[i].setMap(map);
-        markers[i].addListener('click', function () {
-            populateInfoWindow(markers[i], infowindow);
-        });
     }
 }
 
@@ -220,7 +197,6 @@ function getWikiPage(title) {
  */
 function populateWikiContent(data) {
     let htmlContent = '';
-    let contentWrapper = document.querySelector("#info-content");
     if (data) {
         let snippet = data.query.search[0].snippet;
 
@@ -230,7 +206,10 @@ function populateWikiContent(data) {
         htmlContent = '<div class="error-no-content">No wikipedia content available</div>';
     }
 
-    contentWrapper.insertAdjacentHTML('beforeEnd', htmlContent);
+    console.log(htmlContent);
+
+//     TODO: show htmlContent in info window
+
 }
 
 /**
@@ -240,7 +219,7 @@ function populateWikiContent(data) {
 function requestError(e) {
     console.log(e);
     let contentWrapper = document.querySelector("#info-content");
-    contentWrapper.insertAdjacentHTML('beforeEnd', `<p class="network-warning error"> There was an error to make the request.</p>`);
+//  Todo: show error in info window
 }
 
 /**
@@ -266,10 +245,17 @@ let AppViewModel = function () {
         self.places.push(new Place(place));
     });
 
+
+    /**
+     * Init info window content string
+     */
+
+    self.contentString = ko.observable('test');
+
     // Listen to marker click event
     // markerEventListener();
 
-    showAllMarkers(map);
+    // showAllMarkers(map);
 
     /**
      * @description toggle places active status
@@ -356,7 +342,7 @@ let AppViewModel = function () {
             });
         }
         // Show all markers with the filtered results
-        showAllMarkers(map);
+        // showAllMarkers(map);
     };
 
     /**
@@ -370,7 +356,7 @@ let AppViewModel = function () {
         // Init Places
         self.initPlaces();
         // reset markers
-        showAllMarkers(map);
+        // showAllMarkers(map);
     }
 };
 
@@ -379,12 +365,13 @@ $(function () {
     ko.applyBindings(viewModel);
 
     // Check if the Google Map API has been loaded, if not, show warning
-    if (!window.google || !window.google.maps) {
-        let script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?&callback=initialize`;
-        alert("There are some problems with Google Map API loading" + script);
-    }
-    else {
+    if (typeof google === 'object' && typeof google.maps === 'object') {
         initialize();
+        console.log("google map API loaded");
+    } else {
+        let script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=^_^!`;
+        console.log("There are some problems with Google Map API loading: " + script.src);
     }
+
 });
