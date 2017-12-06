@@ -48,6 +48,7 @@ let map;
 let marker;
 let markers = [];
 let infowindow;
+let htmlContent = '';
 
 /**
  * Initialize google map
@@ -65,42 +66,17 @@ function initialize() {
 
     // Init info window
     infowindow = new google.maps.InfoWindow({
-        maxWidth: 320,
-        content: 'test'
+        maxWidth: 320
     });
 
-    markers = [];
-
-    // Init markers
-    for (let place of initialPlaces) {
-        marker = new google.maps.Marker({
-            position: new google.maps.LatLng(place.location.lat, place.location.lng),
-            title: place.title,
-            map: map,
-            animation: google.maps.Animation.DROP
-        });
-
-        markers.push(marker);
-    }
-
-    // add marker click listener
-    for (let marker of markers) {
-        markerEventListener(marker);
-    }
+    showAllMarkers(map, initialPlaces);
 }
 
-function markerEventListener(marker) {
-    google.maps.event.addListener(marker, 'click', (function (marker) {
-        return function () {
-            marker.setAnimation(google.maps.Animation.BOUNCE);
-            // Make the marker bounce once
-            setTimeout(function () {
-                marker.setAnimation(null);
-            }, 1400);
-            infowindow.setContent(marker.title);
-            infowindow.open(map, marker);
-        }
-    })(marker));
+/**
+ * Define click event listener for markers
+ * @param marker
+ */
+function markerEventListener() {
 }
 
 /**
@@ -115,27 +91,6 @@ let Place = function (data) {
     this.lng = ko.observable(data.location.lng);
     this.isActive = ko.observable(data.isActive);
 };
-
-/**
- * @description populate info window for a marker
- * @param marker
- * @param infowindow
- */
-function populateInfoWindow(marker, infowindow) {
-    // Check to make sure the infowindow is not already opened on this marker.
-    if (infowindow.marker !== marker) {
-        infowindow.marker = marker;
-        getWikiPage(marker.title);
-        infowindow.setContent(`<h2 class="marker-title">${marker.title}</h2><div id="info-content"></div>
-<div id="response-container"></div>`);
-
-        infowindow.open(map, marker);
-        // Make sure the marker property is cleared if the infowindow is closed.
-        infowindow.addListener('closeclick', function () {
-            infowindow.marker = null;
-        });
-    }
-}
 
 /**
  * @description add a marker to the markers array
@@ -161,10 +116,39 @@ function clearMarkers() {
  * @description Set all markers on the map
  * @param map
  */
-function showAllMarkers(map) {
-    for (let i = 0; i < markers.length; i++) {
-        markers[i].setMap(map);
+function showAllMarkers(map, places) {
+    markers = [];
+    // Init markers
+
+    for (let i = 0; i < places.length; i++) {
+        marker = new google.maps.Marker({
+            position: new google.maps.LatLng(places[i].location.lat, places[i].location.lng),
+            title: places[i].title,
+            animation: google.maps.Animation.DROP
+        });
+        htmlContent = '';
+        getWikiPage(places[i].title);
+        console.log(htmlContent);
+
+
+        google.maps.event.addListener(marker, 'click', (function (marker, i) {
+            return function () {
+                marker.setAnimation(google.maps.Animation.BOUNCE);
+                // Make the marker bounce once
+                setTimeout(function () {
+                    markers[i].setAnimation(null);
+                }, 1400);
+                infowindow.setContent(`<h4>${marker.title}</h4>${htmlContent}`);
+                infowindow.open(map, marker);
+            }
+        })(marker, i));
+
+        markers.push(marker);
+
+        marker.setMap(map);
     }
+
+
 }
 
 /**
@@ -196,21 +180,16 @@ function getWikiPage(title) {
  * @param data
  */
 function populateWikiContent(data) {
-    let htmlContent = '';
+    htmlContent = '';
     if (data) {
         let snippet = data.query.search[0].snippet;
-
         htmlContent = `<p>Relevant entry snippet on Wikipedia:</p><p class="snippet">${snippet}</p>`;
 
     } else {
         htmlContent = '<div class="error-no-content">No wikipedia content available</div>';
     }
-
-    console.log(htmlContent);
-
-//     TODO: show htmlContent in info window
-
 }
+
 
 /**
  * @description show request error message
@@ -218,8 +197,7 @@ function populateWikiContent(data) {
  */
 function requestError(e) {
     console.log(e);
-    let contentWrapper = document.querySelector("#info-content");
-//  Todo: show error in info window
+    htmlContent = '<div class="error-no-content">There is a problem with wikipedia request</div>';
 }
 
 /**
@@ -245,18 +223,6 @@ let AppViewModel = function () {
         self.places.push(new Place(place));
     });
 
-
-    /**
-     * Init info window content string
-     */
-
-    self.contentString = ko.observable('test');
-
-    // Listen to marker click event
-    // markerEventListener();
-
-    // showAllMarkers(map);
-
     /**
      * @description toggle places active status
      * @param clickedPlace
@@ -279,7 +245,7 @@ let AppViewModel = function () {
         }, 1400);
 
         // show marker info window on clicked place
-        populateInfoWindow(marker, infowindow);
+        markerEventListener(marker);
     };
 
     /**
@@ -331,18 +297,11 @@ let AppViewModel = function () {
                 // If the item includes the keyword, add the place to results array and add marker
                 if (placeTitle.includes(keyword)) {
                     filterResults.push(self.places()[i]);
-                    addMarker(title, self.places()[i].location());
                 }
             }
-            // Reset the self.places data with the filtered results
-            self.deletePlaces();
-            filterResults.forEach(function (place) {
-                self.places.push(place);
-                console.log(place);
-            });
+            // Show all markers with the filtered results
+            // showAllMarkers(map, filterResults);
         }
-        // Show all markers with the filtered results
-        // showAllMarkers(map);
     };
 
     /**
@@ -356,7 +315,7 @@ let AppViewModel = function () {
         // Init Places
         self.initPlaces();
         // reset markers
-        // showAllMarkers(map);
+        showAllMarkers(map, initialPlaces);
     }
 };
 
@@ -364,14 +323,14 @@ $(function () {
     let viewModel = new AppViewModel();
     ko.applyBindings(viewModel);
 
-    // Check if the Google Map API has been loaded, if not, show warning
-    if (typeof google === 'object' && typeof google.maps === 'object') {
-        initialize();
-        console.log("google map API loaded");
-    } else {
-        let script = document.createElement('script');
-        script.src = `https://maps.googleapis.com/maps/api/js?key=^_^!`;
-        console.log("There are some problems with Google Map API loading: " + script.src);
-    }
-
 });
+
+// Check if the Google Map API has been loaded, if not, show warning
+let googleMapIsLoaded = false;
+window.mapsCallback = function () {
+    googleMapIsLoaded = true;
+    initialize();
+};
+if (!googleMapIsLoaded) {
+    alert("There is a problem to load Google Map API.");
+}
