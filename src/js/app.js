@@ -74,7 +74,8 @@ function initialize() {
     });
 
     // Show all markers with initial places data
-    showAllMarkers(map, initialPlaces);
+    addMarkers(initialPlaces);
+    showAllMarkers(map);
 }
 
 /**
@@ -91,34 +92,11 @@ let Place = function (data) {
 };
 
 /**
- * @description add a marker to the markers array
- * @param title {String}, location {object}
+ * Add markers
  */
-function addMarker(title, location) {
-    let marker = new google.maps.Marker({
-        position: new google.maps.LatLng(location),
-        title: title,
-        animation: google.maps.Animation.DROP
-    });
-    markers.push(marker);
-}
-
-/**
- * @description Hide markers from the map
- */
-function clearMarkers() {
-    showAllMarkers(null);
-}
-
-
-/**
- * @description Set all markers on the map
- * @param map
- */
-function showAllMarkers(map, places) {
+function addMarkers(places) {
     // Init markers
     markers = [];
-
     // Set marker for each place
     for (let i = 0; i < places.length; i++) {
         marker = new google.maps.Marker({
@@ -128,16 +106,26 @@ function showAllMarkers(map, places) {
         });
 
         markers.push(marker);
-        marker.setMap(map);
     }
+}
 
+/**
+ * @description Set all markers on the map
+ * @param map
+ */
+function showAllMarkers(map) {
     // iterate markers
     for (let i = 0; i < markers.length; i++) {
         let marker = markers [i];
         markerEventListener(marker);
+        marker.setMap(map);
     }
 }
 
+/**
+ * Add maker click event lisner
+ * @param marker
+ */
 function markerEventListener(marker) {
     (function (marker) {
         google.maps.event.addListener(marker, 'click', function (event) {
@@ -146,6 +134,10 @@ function markerEventListener(marker) {
     })(marker);
 }
 
+/**
+ * Define marker animation and populate infowindow content
+ * @param marker
+ */
 function populateInfoWindow(marker) {
     // Set marker to bounce once
     marker.setAnimation(google.maps.Animation.BOUNCE);
@@ -153,18 +145,51 @@ function populateInfoWindow(marker) {
         marker.setAnimation(null);
     }, 1200);
     //Populate infowindow
-    infowindow.setContent(`<h4>${marker.title}</h4><div data-bind="html: htmlContent"`);
+    infowindow.setContent(`<h4>${marker.title}</h4>`);
     infowindow.open(map, marker);
 }
 
 /**
- * @description delete markers and remove from makers array.
+ * @description fetch wikipedia API data for each place
+ * API doc: https://www.mediawiki.org/wiki/API:Main_page
  */
-function deleteMarkers() {
-    clearMarkers();
-    markers = [];
+
+function getWikiPage(title) {
+    $.ajax({
+        url: '//en.wikipedia.org/w/api.php',
+        data: {action: 'query', list: 'search', srsearch: title, format: 'json'},
+        dataType: 'jsonp'
+    }).done(populateWikiContent())
+        .fail(function (error) {
+            requestError(error);
+        });
 }
 
+/**
+ * @description get wiki content snippet and page url and show the page in info window
+ * @param data
+ */
+function populateWikiContent(data) {
+    let htmlContent = '';
+    if (data) {
+        let snippet = data.query.search[0].snippet;
+        htmlContent = `<p>Relevant entry snippet on Wikipedia:</p><p class="snippet">${snippet}</p>`;
+
+    } else {
+        htmlContent = '<div class="error-no-content">No wikipedia content available</div>';
+    }
+    self.htmlContent = ko.observable(htmlContent);
+}
+
+/**
+ * @description show request error message
+ * @param e
+ */
+function requestError(e) {
+    console.log(e);
+    htmlContent = '<div class="error-no-content">There is a problem with wikipedia data request</div>';
+    self.htmlContent = ko.observable(htmlContent);
+}
 
 /**
  * @description define the app view model
@@ -202,8 +227,22 @@ let AppViewModel = function () {
         let context = ko.contextFor(event.target);
         // get the clicked place marker data
         let marker = markers[context.$index()];
-        // show infowindow on clicked place.
-        populateInfoWindow(marker);
+
+        let htmlContent;
+        getWikiPage(marker.title);
+        console.log(marker.title);
+
+        // Set marker to bounce once
+        marker.setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(function () {
+            marker.setAnimation(null);
+        }, 1200);
+
+        //Populate infowindow
+        infowindow.setContent(`<h4>${marker.title}</h4><div class="wiki-content" data-bind="html: self.htmlContent"></div>`);
+
+        infowindow.open(map, marker);
+
     };
 
     /**
@@ -227,38 +266,42 @@ let AppViewModel = function () {
     };
 
     /**
-     * @description delete places data from the array
-     */
-    self.deletePlaces = function () {
-        self.places.removeAll();
-    };
-
-
-    /**
      * @description filter places with the keyword input
      */
     self.keyword = ko.observable("");
 
     self.filterPlaces = function () {
-        deleteMarkers();
+        // Delete markers
+        showAllMarkers(null);
+        markers = [];
         // Reset the list and markers if keyword is empty
         if (self.keyword() === "") {
-            self.initPlaces();
+            addMarkers(initialPlaces);
+            showAllMarkers(map);
         } else {
             let filterResults = [];
             // compare string and update the list
-            for (let i = 0, len = self.places().length; i < len; ++i) {
-                let title = self.places()[i].title().toString();
+            for (let i = 0, len = initialPlaces.length; i < len; ++i) {
+                let title = initialPlaces[i].title.toString();
                 let placeTitle = title.toLowerCase();
                 let keyword = self.keyword().toString().toLowerCase();
 
                 // If the item includes the keyword, add the place to results array and add marker
                 if (placeTitle.includes(keyword)) {
-                    filterResults.push(self.places()[i]);
+                    filterResults.push(initialPlaces[i]);
                 }
             }
+
+            // Update places list items on the list
+            self.places.removeAll();
+            filterResults.forEach(function (place) {
+                self.places.push(new Place(place));
+            });
+
+            console.log(filterResults);
             // Show all markers with the filtered results
-            // showAllMarkers(map, filterResults);
+            addMarkers(filterResults);
+            showAllMarkers(map);
         }
     };
 
@@ -266,57 +309,18 @@ let AppViewModel = function () {
      * @description reset filter
      */
     self.resetFilter = function () {
-        // delete markers
-        deleteMarkers();
+        // Delete markers
+        showAllMarkers(null);
+        markers = [];
+
         // reset keyword
         self.keyword("");
-        // Init Places
+        // reset list item
         self.initPlaces();
-        // reset markers
-        showAllMarkers(map, initialPlaces);
-    }
-
-    /**
-     * @description get wiki content snippet and page url and show the page in info window
-     * @param data
-     */
-
-    /**
-     * @description fetch wikipedia API data for each place
-     * API doc: https://www.mediawiki.org/wiki/API:Main_page
-     */
-
-    self.htmlContent = ko.observable('test');
-    self.getWikiPage = function (title) {
-        $.ajax({
-            url: '//en.wikipedia.org/w/api.php',
-            data: {action: 'query', list: 'search', srsearch: title, format: 'json'},
-            dataType: 'jsonp'
-        }).done(self.populateWikiContent)
-            .fail(function (error) {
-                self.requestError(error);
-            });
+        // reset and show all markers
+        addMarkers(initialPlaces);
+        showAllMarkers(map);
     };
-
-    self.populateWikiContent = function (data) {
-        getWikiPage(marker.title);
-        if (data) {
-            let snippet = data.query.search[0].snippet;
-            self.htmlContent(`<p>Relevant entry snippet on Wikipedia:</p><p class="snippet">${snippet}</p>`);
-
-        } else {
-            self.htmlContent('<div class="error-no-content">No wikipedia content available</div>');
-        }
-    };
-
-    /**
-     * @description show request error message
-     * @param e
-     */
-    self.requestError = function (e) {
-        console.log(e);
-        htmlContent = '<div class="error-no-content">There is a problem with wikipedia request</div>';
-    }
 };
 
 $(function () {
