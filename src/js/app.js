@@ -145,9 +145,10 @@ function populateInfoWindow(marker) {
         marker.setAnimation(null);
     }, 1200);
     //Populate infowindow
-    infowindow.setContent(`<h4>${marker.title}</h4>`);
+    getWikiPage(marker.title);
     infowindow.open(map, marker);
 }
+
 
 /**
  * @description fetch wikipedia API data for each place
@@ -159,7 +160,7 @@ function getWikiPage(title) {
         url: '//en.wikipedia.org/w/api.php',
         data: {action: 'query', list: 'search', srsearch: title, format: 'json'},
         dataType: 'jsonp'
-    }).done(populateWikiContent())
+    }).done(populateWikiContent)
         .fail(function (error) {
             requestError(error);
         });
@@ -170,15 +171,19 @@ function getWikiPage(title) {
  * @param data
  */
 function populateWikiContent(data) {
+    console.log(data.query.search[0]);
     let htmlContent = '';
+    let title = '';
     if (data) {
+        title = data.query.search[0].title;
         let snippet = data.query.search[0].snippet;
-        htmlContent = `<p>Relevant entry snippet on Wikipedia:</p><p class="snippet">${snippet}</p>`;
+        htmlContent = `<h3 class=".marker-title">${title}</h3><p>Relevant entry snippet on Wikipedia:</p><p class="snippet">${snippet}</p>`;
 
     } else {
         htmlContent = '<div class="error-no-content">No wikipedia content available</div>';
     }
-    self.htmlContent = ko.observable(htmlContent);
+
+    infowindow.setContent(htmlContent);
 }
 
 /**
@@ -186,9 +191,13 @@ function populateWikiContent(data) {
  * @param e
  */
 function requestError(e) {
+    let htmlContent = '';
+
     console.log(e);
     htmlContent = '<div class="error-no-content">There is a problem with wikipedia data request</div>';
-    self.htmlContent = ko.observable(htmlContent);
+
+    infowindow.setContent(htmlContent);
+
 }
 
 /**
@@ -229,8 +238,9 @@ let AppViewModel = function () {
         let marker = markers[context.$index()];
 
         let htmlContent;
+
         getWikiPage(marker.title);
-        console.log(marker.title);
+        console.log("marker.title" + marker.title + ": " + htmlContent);
 
         // Set marker to bounce once
         marker.setAnimation(google.maps.Animation.BOUNCE);
@@ -238,8 +248,10 @@ let AppViewModel = function () {
             marker.setAnimation(null);
         }, 1200);
 
+        console.log(`clickedPlace HTML: ${clickedPlace.wikiHtml}`);
+
         //Populate infowindow
-        infowindow.setContent(`<h4>${marker.title}</h4><div class="wiki-content" data-bind="html: self.htmlContent"></div>`);
+        // infowindow.setContent(`<h4>${marker.title}</h4><div>${htmlContent}</div>`);
 
         infowindow.open(map, marker);
 
@@ -298,7 +310,6 @@ let AppViewModel = function () {
                 self.places.push(new Place(place));
             });
 
-            console.log(filterResults);
             // Show all markers with the filtered results
             addMarkers(filterResults);
             showAllMarkers(map);
@@ -312,7 +323,6 @@ let AppViewModel = function () {
         // Delete markers
         showAllMarkers(null);
         markers = [];
-
         // reset keyword
         self.keyword("");
         // reset list item

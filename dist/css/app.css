@@ -26,8 +26,9 @@ h2 {
   font-weight: bold;
   padding: 0 1em; }
 
-.marker-title {
-  padding: 0; }
+h3.marker-title {
+  padding: 0;
+  margin: 0.5em 0; }
 
 ul {
   list-style: none;
