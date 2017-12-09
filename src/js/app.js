@@ -320,21 +320,14 @@ let AppViewModel = function () {
 };
 
 $(function () {
-
     let viewModel = new AppViewModel();
     ko.applyBindings(viewModel);
-
-
-    window.onerror = function (message, url, line) {
-        alert(`window.onerror was invoked with message = ${message}, url= ${url}, line = ${line}`);
-    };
 });
 
 /**
  * Check if google Map API has been loaded properly. If not, popup an alert
- * @type {boolean}
  */
 
-function reportLoadingError(message, url, line){
-    alert(`window.onerror was invoked with message = ${message}, url= ${url}, line = ${line}`);
+function googleApiError() {
+    alert(`There is a problem with Google Map API script loading. Please check  your network settings`);
 }
