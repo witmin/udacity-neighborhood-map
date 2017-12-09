@@ -324,6 +324,10 @@ $(function () {
     let viewModel = new AppViewModel();
     ko.applyBindings(viewModel);
 
+
+    window.onerror = function (message, url, line) {
+        alert(`window.onerror was invoked with message = ${message}, url= ${url}, line = ${line}`);
+    };
 });
 
 /**
@@ -331,13 +335,6 @@ $(function () {
  * @type {boolean}
  */
 
-// TODO: set googleMapIsLoaded = false
-let googleMapIsLoaded = true;
-window.mapsCallback = function () {
-    googleMapIsLoaded = true;
-    initialize();
-};
-
-if (googleMapIsLoaded === false) {
-    alert("There is a problem to load Google Map API.");
+function reportLoadingError(message, url, line){
+    alert(`window.onerror was invoked with message = ${message}, url= ${url}, line = ${line}`);
 }
