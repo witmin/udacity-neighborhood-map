@@ -48,7 +48,6 @@ let map;
 let marker;
 let markers = [];
 let infowindow;
-let htmlContent = '';
 
 /**
  * Initialize google map
@@ -69,14 +68,13 @@ function initialize() {
         maxWidth: 320
     });
 
-    showAllMarkers(map, initialPlaces);
-}
+    // Hide opened infowindow on click
+    google.maps.event.addListener(map, 'click', function () {
+        infowindow.close();
+    });
 
-/**
- * Define click event listener for markers
- * @param marker
- */
-function markerEventListener() {
+    // Show all markers with initial places data
+    showAllMarkers(map, initialPlaces);
 }
 
 /**
@@ -112,43 +110,51 @@ function clearMarkers() {
     showAllMarkers(null);
 }
 
+
 /**
  * @description Set all markers on the map
  * @param map
  */
 function showAllMarkers(map, places) {
-    markers = [];
     // Init markers
+    markers = [];
 
+    // Set marker for each place
     for (let i = 0; i < places.length; i++) {
         marker = new google.maps.Marker({
-            position: new google.maps.LatLng(places[i].location.lat, places[i].location.lng),
+            position: new google.maps.LatLng(places[i].location),
             title: places[i].title,
             animation: google.maps.Animation.DROP
         });
-        htmlContent = '';
-        getWikiPage(places[i].title);
-        console.log(htmlContent);
-
-
-        google.maps.event.addListener(marker, 'click', (function (marker, i) {
-            return function () {
-                marker.setAnimation(google.maps.Animation.BOUNCE);
-                // Make the marker bounce once
-                setTimeout(function () {
-                    markers[i].setAnimation(null);
-                }, 1400);
-                infowindow.setContent(`<h4>${marker.title}</h4>${htmlContent}`);
-                infowindow.open(map, marker);
-            }
-        })(marker, i));
 
         markers.push(marker);
-
         marker.setMap(map);
     }
 
+    // iterate markers
+    for (let i = 0; i < markers.length; i++) {
+        let marker = markers [i];
+        markerEventListener(marker);
+    }
+}
 
+function markerEventListener(marker) {
+    (function (marker) {
+        google.maps.event.addListener(marker, 'click', function (event) {
+            populateInfoWindow(marker);
+        });
+    })(marker);
+}
+
+function populateInfoWindow(marker) {
+    // Set marker to bounce once
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+    setTimeout(function () {
+        marker.setAnimation(null);
+    }, 1200);
+    //Populate infowindow
+    infowindow.setContent(`<h4>${marker.title}</h4><div data-bind="html: htmlContent"`);
+    infowindow.open(map, marker);
 }
 
 /**
@@ -159,46 +165,6 @@ function deleteMarkers() {
     markers = [];
 }
 
-
-/**
- * @description fetch wikipedia API data for each place
- * API doc: https://www.mediawiki.org/wiki/API:Main_page
- */
-function getWikiPage(title) {
-    $.ajax({
-        url: '//en.wikipedia.org/w/api.php',
-        data: {action: 'query', list: 'search', srsearch: title, format: 'json'},
-        dataType: 'jsonp'
-    }).done(populateWikiContent)
-        .fail(function (error) {
-            requestError(error);
-        });
-}
-
-/**
- * @description get wiki content snippet and page url and show the page in info window
- * @param data
- */
-function populateWikiContent(data) {
-    htmlContent = '';
-    if (data) {
-        let snippet = data.query.search[0].snippet;
-        htmlContent = `<p>Relevant entry snippet on Wikipedia:</p><p class="snippet">${snippet}</p>`;
-
-    } else {
-        htmlContent = '<div class="error-no-content">No wikipedia content available</div>';
-    }
-}
-
-
-/**
- * @description show request error message
- * @param e
- */
-function requestError(e) {
-    console.log(e);
-    htmlContent = '<div class="error-no-content">There is a problem with wikipedia request</div>';
-}
 
 /**
  * @description define the app view model
@@ -232,20 +198,12 @@ let AppViewModel = function () {
             let place = self.places()[i];
             place.isActive(false);
         }
-
         clickedPlace.isActive(true);
         let context = ko.contextFor(event.target);
-
         // get the clicked place marker data
         let marker = markers[context.$index()];
-        marker.setAnimation(google.maps.Animation.BOUNCE);
-        // Make the marker bounce once
-        setTimeout(function () {
-            marker.setAnimation(null);
-        }, 1400);
-
-        // show marker info window on clicked place
-        markerEventListener(marker);
+        // show infowindow on clicked place.
+        populateInfoWindow(marker);
     };
 
     /**
@@ -317,20 +275,69 @@ let AppViewModel = function () {
         // reset markers
         showAllMarkers(map, initialPlaces);
     }
+
+    /**
+     * @description get wiki content snippet and page url and show the page in info window
+     * @param data
+     */
+
+    /**
+     * @description fetch wikipedia API data for each place
+     * API doc: https://www.mediawiki.org/wiki/API:Main_page
+     */
+
+    self.htmlContent = ko.observable('test');
+    self.getWikiPage = function (title) {
+        $.ajax({
+            url: '//en.wikipedia.org/w/api.php',
+            data: {action: 'query', list: 'search', srsearch: title, format: 'json'},
+            dataType: 'jsonp'
+        }).done(self.populateWikiContent)
+            .fail(function (error) {
+                self.requestError(error);
+            });
+    };
+
+    self.populateWikiContent = function (data) {
+        getWikiPage(marker.title);
+        if (data) {
+            let snippet = data.query.search[0].snippet;
+            self.htmlContent(`<p>Relevant entry snippet on Wikipedia:</p><p class="snippet">${snippet}</p>`);
+
+        } else {
+            self.htmlContent('<div class="error-no-content">No wikipedia content available</div>');
+        }
+    };
+
+    /**
+     * @description show request error message
+     * @param e
+     */
+    self.requestError = function (e) {
+        console.log(e);
+        htmlContent = '<div class="error-no-content">There is a problem with wikipedia request</div>';
+    }
 };
 
 $(function () {
+
     let viewModel = new AppViewModel();
     ko.applyBindings(viewModel);
 
 });
 
-// Check if the Google Map API has been loaded, if not, show warning
-let googleMapIsLoaded = false;
+/**
+ * Check if google Map API has been loaded properly. If not, popup an alert
+ * @type {boolean}
+ */
+
+// TODO: set googleMapIsLoaded = false
+let googleMapIsLoaded = true;
 window.mapsCallback = function () {
     googleMapIsLoaded = true;
     initialize();
 };
-if (!googleMapIsLoaded) {
+
+if (googleMapIsLoaded === false) {
     alert("There is a problem to load Google Map API.");
 }
