@@ -154,7 +154,6 @@ function populateInfoWindow(marker) {
  * @description fetch wikipedia API data for each place
  * API doc: https://www.mediawiki.org/wiki/API:Main_page
  */
-
 function getWikiPage(title) {
     $.ajax({
         url: '//en.wikipedia.org/w/api.php',
@@ -171,14 +170,12 @@ function getWikiPage(title) {
  * @param data
  */
 function populateWikiContent(data) {
-    console.log(data.query.search[0]);
-    let htmlContent = '';
-    let title = '';
+    let htmlContent, title;
+
     if (data) {
         title = data.query.search[0].title;
         let snippet = data.query.search[0].snippet;
         htmlContent = `<h3 class=".marker-title">${title}</h3><p>Relevant entry snippet on Wikipedia:</p><p class="snippet">${snippet}</p>`;
-
     } else {
         htmlContent = '<div class="error-no-content">No wikipedia content available</div>';
     }
@@ -191,13 +188,12 @@ function populateWikiContent(data) {
  * @param e
  */
 function requestError(e) {
-    let htmlContent = '';
+    let htmlContent;
 
     console.log(e);
     htmlContent = '<div class="error-no-content">There is a problem with wikipedia data request</div>';
 
     infowindow.setContent(htmlContent);
-
 }
 
 /**
@@ -233,28 +229,20 @@ let AppViewModel = function () {
             place.isActive(false);
         }
         clickedPlace.isActive(true);
+
         let context = ko.contextFor(event.target);
+
         // get the clicked place marker data
         let marker = markers[context.$index()];
-
-        let htmlContent;
-
-        getWikiPage(marker.title);
-        console.log("marker.title" + marker.title + ": " + htmlContent);
-
         // Set marker to bounce once
         marker.setAnimation(google.maps.Animation.BOUNCE);
         setTimeout(function () {
             marker.setAnimation(null);
         }, 1200);
 
-        console.log(`clickedPlace HTML: ${clickedPlace.wikiHtml}`);
-
-        //Populate infowindow
-        // infowindow.setContent(`<h4>${marker.title}</h4><div>${htmlContent}</div>`);
-
+        // Get wiki content and set to info window
+        getWikiPage(marker.title);
         infowindow.open(map, marker);
-
     };
 
     /**
@@ -336,12 +324,11 @@ let AppViewModel = function () {
 $(function () {
     let viewModel = new AppViewModel();
     ko.applyBindings(viewModel);
+
+    /**
+     * Show alert pop-up when google API script loads with error
+     */
+    function googleApiError() {
+        alert(`There is a problem with Google Map API script loading. Please check  your network settings`);
+    }
 });
-
-/**
- * Check if google Map API has been loaded properly. If not, popup an alert
- */
-
-function googleApiError() {
-    alert(`There is a problem with Google Map API script loading. Please check  your network settings`);
-}
