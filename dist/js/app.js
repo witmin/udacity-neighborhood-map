@@ -319,11 +319,11 @@ var AppViewModel = function AppViewModel() {
 $(function () {
     var viewModel = new AppViewModel();
     ko.applyBindings(viewModel);
-
-    /**
-     * Show alert pop-up when google API script loads with error
-     */
-    function googleApiError() {
-        alert("There is a problem with Google Map API script loading. Please check  your network settings");
-    }
 });
+
+/**
+ * Show alert pop-up when google API script loads with error
+ */
+function googleApiError() {
+    alert("There is a problem with Google Map API script loading. Please check  your network settings");
+}
